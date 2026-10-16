@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#080d1b">
+<title>CASE FILE 009 — The Secret Hunt</title>
+<style>
+  :root {
+    --bg:#080d1b; --panel:#111a2d; --panel2:#17233b; --ink:#eef4ff;
+    --muted:#9aabc8; --cyan:#54e6e1; --gold:#ffc96b; --red:#ff7188;
+    --line:rgba(151,181,226,.18); --green:#8cf0ad;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0; min-height:100vh; color:var(--ink);
+    font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;
+    background:
+      radial-gradient(ellipse at 15% 0%,rgba(49,107,168,.22),transparent 40%),
+      radial-gradient(ellipse at 100% 35%,rgba(66,40,125,.2),transparent 38%),var(--bg);
+  }
+  body:before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.17;
+    background-image:linear-gradient(rgba(126,166,223,.12) 1px,transparent 1px),linear-gradient(90deg,rgba(126,166,223,.12) 1px,transparent 1px);
+    background-size:34px 34px;mask-image:linear-gradient(to bottom,black,transparent 90%);}
+  button,input{font:inherit}
+  button{cursor:pointer}
+  .wrap{width:min(1080px,92%);margin:auto;padding:28px 0 50px;position:relative}
+  .topbar{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:30px}
+  .brand{display:flex;align-items:center;gap:11px;font-weight:900;letter-spacing:.12em;font-size:.84rem}
+  .brand-icon{width:42px;height:42px;border:1px solid rgba(84,230,225,.5);background:#10243a;border-radius:13px;display:grid;place-items:center;font-size:22px;box-shadow:0 0 25px #54e6e11c}
+  .status{font-size:.76rem;color:var(--green);border:1px solid #8cf0ad44;border-radius:999px;padding:8px 12px;letter-spacing:.08em}
+  .hero{display:grid;grid-template-columns:1.35fr .65fr;gap:26px;align-items:stretch;margin-bottom:28px}
+  .hero-copy,.case-card,.level-card,.mission,.footer-card{background:linear-gradient(145deg,rgba(22,34,57,.95),rgba(12,20,36,.95));border:1px solid var(--line);border-radius:24px}
+  .hero-copy{padding:clamp(24px,5vw,48px);position:relative;overflow:hidden}
+  .eyebrow{color:var(--cyan);font-size:.75rem;font-weight:850;letter-spacing:.2em;text-transform:uppercase}
+  h1{font-size:clamp(2.3rem,6vw,4.6rem);line-height:.98;letter-spacing:-.06em;margin:17px 0}
+  h1 span{color:var(--cyan)}
+  .intro{color:#bdc9df;max-width:580px;line-height:1.7;margin-bottom:24px}
+  .primary{background:var(--cyan);color:#06141d;border:0;border-radius:12px;padding:13px 18px;font-weight:900;box-shadow:0 8px 24px #54e6e11c;transition:transform .18s,filter .18s}
+  .primary:hover{transform:translateY(-2px);filter:brightness(1.08)}
+  .secondary{background:#ffffff08;color:var(--ink);border:1px solid var(--line);border-radius:12px;padding:12px 15px;font-weight:750}
+  .hero-actions{display:flex;gap:10px;flex-wrap:wrap}
+  .case-card{padding:24px;display:flex;flex-direction:column;justify-content:space-between;min-height:270px;background:radial-gradient(circle at 80% 12%,#263d5d,transparent 48%),linear-gradient(145deg,#14233a,#0d1424)}
+  .stamp{align-self:flex-start;border:2px solid var(--gold);color:var(--gold);padding:6px 10px;transform:rotate(-5deg);font-weight:950;letter-spacing:.14em;font-size:.75rem}
+  .file-art{font-size:78px;text-align:center;filter:drop-shadow(0 12px 22px #0008)}
+  .case-card p{color:var(--muted);line-height:1.55;font-size:.9rem;margin-bottom:0}
+  .progress-panel{padding:18px 20px;background:#0d1628c9;border:1px solid var(--line);border-radius:18px;margin-bottom:30px}
+  .progress-top{display:flex;justify-content:space-between;gap:12px;align-items:center;margin-bottom:12px;font-size:.9rem}
+  .progress-top strong{font-size:1rem}
+  .progress-track{height:9px;border-radius:99px;background:#26344b;overflow:hidden}
+  .progress-fill{height:100%;width:0;background:linear-gradient(90deg,var(--cyan),#a2ffbf);border-radius:99px;transition:width .35s}
+  .section-head{display:flex;justify-content:space-between;align-items:end;gap:14px;margin:34px 0 16px}
+  h2{font-size:1.35rem;margin:0;letter-spacing:-.03em}
+  .section-head p{margin:7px 0 0;color:var(--muted);font-size:.9rem}
+  .level-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:13px}
+  .level-card{min-height:155px;padding:18px;text-align:left;color:var(--ink);position:relative;transition:transform .2s,border-color .2s,opacity .2s;background:linear-gradient(145deg,#15233b,#0f182a)}
+  .level-card:not(:disabled):hover{transform:translateY(-4px);border-color:#54e6e177}
+  .level-card:disabled{opacity:.43;cursor:not-allowed;filter:saturate(.45)}
+  .level-card.done{border-color:#8cf0ad66}
+  .level-num{font-size:.7rem;color:var(--cyan);letter-spacing:.14em;font-weight:900}
+  .level-emoji{font-size:27px;margin:15px 0 9px}
+  .level-name{font-weight:850;font-size:.94rem}
+  .level-state{font-size:.73rem;color:var(--muted);margin-top:6px}
+  .lock{position:absolute;right:15px;top:15px;color:var(--muted)}
+  .mission{padding:clamp(22px,4vw,38px);margin-top:30px;display:none}
+  .mission.active{display:block;animation:rise .3s ease}
+  @keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+  .mission-top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+  .tag{border:1px solid #54e6e155;color:var(--cyan);border-radius:999px;padding:7px 10px;font-size:.72rem;font-weight:900;letter-spacing:.09em}
+  .mission h2{font-size:clamp(1.6rem,4vw,2.3rem);margin:18px 0 10px}
+  .mission-desc{color:#c3cfe2;line-height:1.7;max-width:700px}
+  .puzzle-box{margin:22px 0;padding:23px;border-radius:17px;background:#080f1e;border:1px solid #8aa6d52a}
+  .puzzle-label{font-size:.72rem;letter-spacing:.15em;color:var(--gold);font-weight:900;margin-bottom:12px}
+  .puzzle-text{font-size:clamp(1.1rem,3vw,1.55rem);font-weight:850;line-height:1.55;white-space:pre-line}
+  .small-note{color:var(--muted);font-size:.86rem;line-height:1.6;margin-top:12px}
+  .answer-row{display:flex;gap:10px;max-width:620px}
+  .answer-row input{min-width:0;flex:1;background:#080f1e;border:1px solid #52668288;border-radius:12px;padding:13px 14px;color:var(--ink);outline:none}
+  .answer-row input:focus{border-color:var(--cyan);box-shadow:0 0 0 3px #54e6e11c}
+  .feedback{min-height:28px;font-size:.9rem;margin:12px 0 0;font-weight:700}
+  .feedback.good{color:var(--green)}.feedback.bad{color:var(--red)}
+  .mission-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px}
+  .hint{display:none;background:#ffc96b12;border:1px solid #ffc96b40;color:#ffdda0;padding:13px 15px;border-radius:12px;margin-top:14px;line-height:1.55}
+  .hint.show{display:block}
+  .footer-card{margin-top:28px;padding:20px 22px;color:var(--muted);font-size:.86rem;line-height:1.7}
+  .footer-card strong{color:var(--ink)}
+  .toast{position:fixed;bottom:20px;left:50%;transform:translate(-50%,20px);opacity:0;pointer-events:none;background:#d6ffe2;color:#082014;padding:13px 18px;border-radius:12px;font-weight:900;box-shadow:0 10px 35px #0006;transition:.25s;z-index:10;text-align:center;width:max-content;max-width:90%}
+  .toast.show{opacity:1;transform:translate(-50%,0)}
+  .final-box{border-color:#ffc96b66;background:radial-gradient(circle at 50% 0%,#45351b55,transparent 65%),#080f1e}
+  .celebrate{font-size:45px;margin:0 0 8px}
+  .tiny{font-size:.76rem;color:var(--muted)}
+  @media(max-width:760px){.hero{grid-template-columns:1fr}.case-card{min-height:210px}.file-art{font-size:55px}.level-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.level-card{min-height:145px}.wrap{padding-top:18px}}
+  @media(max-width:420px){.topbar{align-items:flex-start}.status{font-size:.65rem}.answer-row{flex-direction:column}.answer-row button{width:100%}.hero-copy{padding:24px}}
+  @media(prefers-reduced-motion:reduce){*,*:before,*:after{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="topbar">
+    <div class="brand"><div class="brand-icon">🕵️</div><div>THE JUNIOR DETECTIVE BUREAU<br><span class="tiny">SPECIAL INVESTIGATIONS UNIT</span></div></div>
+    <div class="status">● CASE STATUS: OPEN</div>
+  </header>
+
+  <section class="hero">
+    <div class="hero-copy">
+      <div class="eyebrow">Confidential • Case 009</div>
+      <h1>THE SECRET<br><span>BIRTHDAY HUNT</span></h1>
+      <p class="intro">A secret surprise has been hidden. Solve seven clever challenges, collect the clues, and prove you have the sharpest detective mind in the house. Every solved level unlocks the next one.</p>
+      <div class="hero-actions">
+        <button class="primary" id="startBtn">▶ START INVESTIGATION</button>
+        <button class="secondary" id="rulesBtn">Read the rules</button>
+      </div>
+    </div>
+    <aside class="case-card">
+      <div class="stamp">TOP SECRET</div>
+      <div class="file-art">🗂️🔎</div>
+      <div><div class="eyebrow">Mission briefing</div><p>7 levels • 1 final riddle • 1 hidden surprise<br>Think carefully. Ask for a hint if you need one.</p></div>
+    </aside>
+  </section>
+
+  <section class="progress-panel" aria-label="Investigation progress">
+    <div class="progress-top"><strong>Investigation progress</strong><span id="progressText">0 / 7 levels solved</span></div>
+    <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+  </section>
+
+  <div class="section-head">
+    <div><h2>Choose your mission</h2><p>Only Level 1 is available at the beginning.</p></div>
+    <span class="tiny">UNLOCK • SOLVE • ADVANCE</span>
+  </div>
+  <section class="level-grid" id="levelGrid" aria-label="Seven puzzle levels"></section>
+
+  <section class="mission" id="mission" aria-live="polite">
+    <div class="mission-top"><span class="tag" id="missionTag">LEVEL 01</span><span class="tiny" id="missionStatus">MISSION IN PROGRESS</span></div>
+    <h2 id="missionTitle">The Secret Message</h2>
+    <p class="mission-desc" id="missionDesc"></p>
+    <div class="puzzle-box" id="puzzleBox">
+      <div class="puzzle-label">EVIDENCE FOUND</div>
+      <div class="puzzle-text" id="puzzleText"></div>
+      <p class="small-note" id="puzzleNote"></p>
+    </div>
+    <div class="answer-row">
+      <input id="answerInput" type="text" autocomplete="off" placeholder="Type your answer here…" aria-label="Your answer">
+      <button class="primary" id="checkBtn">CHECK ANSWER</button>
+    </div>
+    <div class="feedback" id="feedback" role="status"></div>
+    <div class="hint" id="hintBox"></div>
+    <div class="mission-actions">
+      <button class="secondary" id="hintBtn">💡 Give me a hint</button>
+      <button class="secondary" id="backBtn">← Back to levels</button>
+      <button class="primary" id="nextBtn" style="display:none">NEXT UNLOCKED LEVEL →</button>
+    </div>
+  </section>
+
+  <section class="footer-card" id="rulesPanel" hidden>
+    <strong>Detective rules</strong><br>
+    1. Start at Level 1 and solve the puzzle. 2. Enter your answer and press “Check Answer”. 3. A correct answer unlocks the next level. 4. Hints are allowed—good detectives use their evidence! 5. The final riddle gives you the answer to the mystery, then you can search for the real surprise.
+  </section>
+  <section class="footer-card">
+    <strong>Agent’s note:</strong> This website is the puzzle game; it does not know where a real gift is hidden. After the final riddle, the detective can search for the surprise you have hidden at home. <span class="tiny">Progress is saved in this browser on this device.</span>
+  </section>
+</div>
+<div class="toast" id="toast">LEVEL UNLOCKED!</div>
+
+<script>
+(() => {
+  "use strict";
+  const levels = [
+    {
+      title:"The Secret Message", icon:"✉️", type:"decode",
+      desc:"The suspect left a message, but every word has been written backwards. Reverse each word to discover the location.",
+      puzzle:"REDNU EHT ELBAT",
+      note:"Detective tip: Read each word from right to left. Keep the words in the same order.",
+      answers:["under the table"],
+      hint:"The last word is a piece of furniture.",
+      success:"Excellent decoding! You found the hidden location. Level 2 is now unlocked."
+    },
+    {
+      title:"The Secret Grid Map", icon:"🗺️", type:"grid",
+      desc:"A tiny map marks the place where the next piece of evidence is waiting. Find the correct square.",
+      puzzle:"     A     B     C     D\n1   □     □     □     □\n2   □     □     □     □\n3   □     🛏️     □     □\n4   □     □     □     □\n\nMAP SIGNAL: B3",
+      note:"Which object is marked by the star? Choose the matching object from the answer choices below.",
+      answers:["bed"],
+      hint:"B means the second column. 3 means the third row.",
+      success:"Map coordinates confirmed! The next mission is unlocked."
+    },
+    {
+      title:"The Picture Detective", icon:"🪞", type:"picture",
+      desc:"Two picture clues point to one everyday object. Think about what the pictures have in common.",
+      puzzle:"☀️  +  👓\n\n“I help you see yourself, but I am not a photograph.”",
+      note:"Enter the name of the object you might look into before leaving home.",
+      answers:["mirror","a mirror"],
+      hint:"It is often found in a bathroom or bedroom.",
+      success:"Sharp eyes! You solved the picture clue and unlocked Level 4."
+    },
+    {
+      title:"The Number Detective", icon:"🔢", type:"number",
+      desc:"The notebook is protected by a simple number pattern. Find the missing number, then type it in.",
+      puzzle:"2  •  4  •  6  •  8  •  ?",
+      note:"The missing number is also the page number to check in a real notebook.",
+      answers:["10","ten"],
+      hint:"The numbers go up by the same amount each time.",
+      success:"Pattern cracked! 10 is your clue, and Level 5 is unlocked."
+    },
+    {
+      title:"The Maze Escape", icon:"🧩", type:"maze",
+      desc:"Follow the maze from START to FINISH. The exit message tells you where to look next.",
+      puzzle:"START  →  □ ─ □ ─ □\n              │       │\n              □ ─ □ ─ □  →  FINISH\n\nEXIT MESSAGE: “Where do your shoes sleep?”",
+      note:"Think of the place where shoes are usually kept together at home.",
+      answers:["shoe rack","the shoe rack","shoes rack","shoe shelf","shoe stand","shoerack","shoe cabinet"],
+      hint:"It is usually near the door or in a hallway.",
+      success:"You found the shoe-storage clue. Level 6 is unlocked."
+    },
+    {
+      title:"The Detective’s Riddle", icon:"🪑", type:"riddle",
+      desc:"Solve this classic riddle to identify the next piece of evidence.",
+      puzzle:"I have four legs, but I cannot walk.\nYou might eat your meals on me.\nWhat am I?",
+      note:"Type the object’s name.",
+      answers:["table","a table"],
+      hint:"It is often found in a dining room.",
+      success:"Riddle solved! The next and final level is now unlocked."
+    },
+    {
+      title:"The Final Lens", icon:"🔍", type:"final",
+      desc:"You have reached the final challenge. Solve this riddle to discover the mystery object!",
+      puzzle:"“I have lenses but no camera,\nand I let you zoom without electricity.\nWhat am I?”",
+      note:"Think of a simple tool a detective might use to make tiny things look bigger.",
+      answers:["binoculars","BINOCULARS","Binoculars","hand lens"],
+      hint:"Used in Bharatpur Bird Sanctury!!",
+      success:"CASE CLOSED! You solved every level. The mystery object is BINOCULARS!"
+    }
+  ];
+
+  const icons = ["✉️","🗺️","🪞","🔢","🧩","🪑","🔍"];
+  let unlocked = 1;
+  let solved = new Set();
+  let current = 0;
+  let hintShown = false;
+  const $ = id => document.getElementById(id);
+  const normalize = value => value.toLowerCase().trim().replace(/[’']/g,"").replace(/[.!?,]/g,"").replace(/\s+/g," ");
+
+  function loadProgress(){
+    try {
+      const saved = JSON.parse(localStorage.getItem("caseFile009Progress") || "null");
+      if(saved && Array.isArray(saved.solved)){
+        solved = new Set(saved.solved.filter(n => Number.isInteger(n) && n >= 0 && n < 7));
+        unlocked = Math.min(7, Math.max(1, Number(saved.unlocked) || 1, ...[...solved].map(n=>n+2)));
+      }
+    } catch(e) { /* game still works if storage is unavailable */ }
+  }
+  function saveProgress(){
+    try { localStorage.setItem("caseFile009Progress", JSON.stringify({unlocked,solved:[...solved]})); } catch(e) {}
+  }
+  function renderLevels(){
+    const grid = $("levelGrid");
+    grid.innerHTML = "";
+    levels.forEach((level,i)=>{
+      const isOpen = i < unlocked;
+      const isDone = solved.has(i);
+      const btn = document.createElement("button");
+      btn.className = "level-card" + (isDone ? " done" : "");
+      btn.disabled = !isOpen;
+      btn.setAttribute("aria-label", `Level ${i+1}: ${level.title}${isDone?", solved":!isOpen?", locked":""}`);
+      btn.innerHTML = `<span class="level-num">LEVEL ${String(i+1).padStart(2,"0")}</span>
+        <span class="lock">${isDone?"✓":isOpen?"↗":"🔒"}</span>
+        <div class="level-emoji">${icons[i]}</div>
+        <div class="level-name">${level.title}</div>
+        <div class="level-state">${isDone?"CASE SOLVED":isOpen?"READY TO PLAY":"LOCKED — SOLVE PREVIOUS"}</div>`;
+      btn.addEventListener("click",()=>openLevel(i));
+      grid.appendChild(btn);
+    });
+    $("progressText").textContent = `${solved.size} / 7 levels solved`;
+    $("progressFill").style.width = `${solved.size/7*100}%`;
+  }
+  function openLevel(i){
+    if(i >= unlocked) return;
+    current = i;
+    hintShown = false;
+    $("hintBtn").style.display = "inline-block";
+    const level = levels[i];
+    $("mission").classList.add("active");
+    $("missionTag").textContent = `LEVEL ${String(i+1).padStart(2,"0")} • ${i===6?"FINAL CHALLENGE":"FIELD PUZZLE"}`;
+    $("missionTitle").textContent = level.title;
+    $("missionDesc").textContent = level.desc;
+    $("puzzleText").textContent = level.puzzle;
+    $("puzzleNote").textContent = level.note;
+    $("puzzleBox").classList.toggle("final-box", i===6);
+    $("hintBox").classList.remove("show");
+    $("hintBox").textContent = "";
+    $("answerInput").value = "";
+    $("feedback").textContent = solved.has(i) ? level.success : "";
+    $("feedback").className = "feedback" + (solved.has(i) ? " good" : "");
+    $("missionStatus").textContent = solved.has(i) ? "MISSION COMPLETED ✓" : "MISSION IN PROGRESS";
+    $("checkBtn").style.display = solved.has(i) ? "none" : "inline-block";
+    $("answerInput").disabled = solved.has(i);
+    $("nextBtn").style.display = solved.has(i) && i<6 ? "inline-block" : "none";
+    if(i===6 && solved.has(i)){
+      $("puzzleText").textContent = "CASE CLOSED! 🎉\n\nTHE ANSWER: BINOCULARS\n\nNow search for the real surprise!";
+      $("puzzleNote").textContent = "Your final mission is complete, detective.";
+    }
+    $("mission").scrollIntoView({behavior:"smooth",block:"start"});
+    if(!solved.has(i)) setTimeout(()=>$("answerInput").focus({preventScroll:true}),250);
+  }
+  function checkAnswer(){
+    if(solved.has(current)) return;
+    const value = normalize($("answerInput").value);
+    const level = levels[current];
+    if(!value){
+      showFeedback("Type your answer first, detective.",false);
+      $("answerInput").focus();
+      return;
+    }
+    if(level.answers.some(a=>normalize(a)===value)){
+      solved.add(current);
+      unlocked = Math.max(unlocked,Math.min(7,current+2));
+      saveProgress();
+      renderLevels();
+      showFeedback(level.success,true);
+      $("missionStatus").textContent = "MISSION COMPLETED ✓";
+      $("checkBtn").style.display = "none";
+      $("answerInput").disabled = true;
+      $("hintBtn").style.display = "none";
+      if(current<6){
+        $("nextBtn").style.display = "inline-block";
+        $("nextBtn").textContent = `NEXT LEVEL ${current+2} UNLOCKED →`;
+        toast(`LEVEL ${current+2} UNLOCKED!`);
+      } else {
+        $("nextBtn").style.display = "none";
+        $("puzzleText").textContent = "CASE CLOSED! 🎉\n\nTHE ANSWER: BINOCULARS\n\nNow search for the real surprise!";
+        $("puzzleNote").textContent = "You solved all seven levels. Excellent detective work!";
+        toast("CASE CLOSED — ALL 7 LEVELS SOLVED!");
+      }
+      $("levelGrid").scrollIntoView({behavior:"smooth",block:"nearest"});
+    } else {
+      showFeedback("Not quite! Check the clue and try again. You can use a hint.",false);
+      $("answerInput").select();
+    }
+  }
+  function showFeedback(message,good){
+    $("feedback").textContent = message;
+    $("feedback").className = "feedback " + (good?"good":"bad");
+  }
+  function toast(message){
+    const el=$("toast");el.textContent=message;el.classList.add("show");
+    setTimeout(()=>el.classList.remove("show"),2600);
+  }
+  $("startBtn").addEventListener("click",()=>openLevel(Math.min(unlocked-1,0)));
+  $("rulesBtn").addEventListener("click",()=>{
+    const p=$("rulesPanel");p.hidden=!p.hidden;
+    if(!p.hidden)p.scrollIntoView({behavior:"smooth",block:"nearest"});
+  });
+  $("checkBtn").addEventListener("click",checkAnswer);
+  $("answerInput").addEventListener("keydown",e=>{if(e.key==="Enter")checkAnswer()});
+  $("hintBtn").addEventListener("click",()=>{
+    $("hintBox").textContent=levels[current].hint;
+    $("hintBox").classList.add("show");
+    hintShown=true;
+  });
+  $("backBtn").addEventListener("click",()=>$("levelGrid").scrollIntoView({behavior:"smooth",block:"start"}));
+  $("nextBtn").addEventListener("click",()=>{
+    if(current<6 && current+1<unlocked)openLevel(current+1);
+  });
+  loadProgress();
+  renderLevels();
+})();
+</script>
+</body>
+</html>
